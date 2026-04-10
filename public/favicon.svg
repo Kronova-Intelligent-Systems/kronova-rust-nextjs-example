@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="kg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0047AB"/>
+      <stop offset="50%" stop-color="#0088CC"/>
+      <stop offset="100%" stop-color="#00CED1"/>
+    </linearGradient>
+    <linearGradient id="kgr" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00CED1"/>
+      <stop offset="100%" stop-color="#0047AB"/>
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="6" fill="#030712"/>
+  <g transform="translate(4, 4)">
+    <circle cx="12" cy="12" r="11" fill="none" stroke="url(#kg)" stroke-width="1.2"/>
+    <path d="M8 5 L8 19 M8 12 L16 5 M8 12 L16 19" stroke="url(#kg)" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <circle cx="8" cy="5" r="2" fill="url(#kg)"/>
+    <circle cx="8" cy="12" r="2.4" fill="url(#kg)"/>
+    <circle cx="8" cy="19" r="2" fill="url(#kg)"/>
+    <circle cx="16" cy="5" r="2" fill="url(#kgr)"/>
+    <circle cx="16" cy="19" r="2" fill="url(#kgr)"/>
+  </g>
+</svg>

@@ -76,7 +76,7 @@ export function InstallPrompt() {
             <div className="p-1 bg-primary/10 rounded">
               <Download className="h-4 w-4 text-primary" />
             </div>
-            <CardTitle className="text-sm">Install Resend-It </CardTitle>
+            <CardTitle className="text-sm">Install Kronova Intelligence </CardTitle>
           </div>
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleDismiss}>
             <X className="h-3 w-3" />

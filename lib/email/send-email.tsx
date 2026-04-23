@@ -4,7 +4,7 @@ const apiKey = process.env.RESEND_API_KEY || process.env.RESENDIT_API_KEY
 const resend = apiKey ? new Resend(apiKey) : null
 
 const getSiteUrl = () => {
-  return process.env.NEXT_PUBLIC_SITE_URL || "https://v0-resendit-rspc.vercel.app"
+  return process.env.NEXT_PUBLIC_SITE_URL || "https://kronova.io"
 }
 
 export interface SendEmailOptions {

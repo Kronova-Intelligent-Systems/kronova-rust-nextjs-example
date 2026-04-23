@@ -1,4 +1,4 @@
-# ResendIt Lite Platform - Enterprise Valuation Analysis (https://v0-resendit-rspc.vercel.app)
+# Kronova Platform - Enterprise Valuation Analysis (https://kronova.io)
 
 ## Executive Summary
 

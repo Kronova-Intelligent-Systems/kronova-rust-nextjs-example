@@ -7,7 +7,7 @@
 
 ## Elevator Pitch (30 seconds)
 
-Built ResendIt, an enterprise SaaS platform that unifies physical, digital, and financial asset management using AI-powered analytics, multi-chain blockchain integration, and real-time banking connectivity via Plaid. The platform features a sophisticated rspc API architecture, autonomous AI agents, and bank-level security, serving the $135B enterprise asset management market. **Current valuation: $15M with strong investor interest.**
+Built Kronova, an enterprise SaaS platform that unifies physical, digital, and financial asset management using AI-powered analytics, multi-chain blockchain integration, and real-time banking connectivity via Plaid. The platform features a sophisticated rspc API architecture, autonomous AI agents, and bank-level security, serving the $135B enterprise asset management market. **Current valuation: $15M with strong investor interest.**
 
 ---
 

@@ -83,9 +83,9 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.svg", type: "image/svg+xml" },
-      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-192x192.png", sizes: "192x192", type: "image/png" },
     ],
-    apple: [{ url: "/icons/icon-180x180.png", sizes: "180x180", type: "image/png" }],
+    apple: [{ url: "/icon-180x180.png", sizes: "180x180", type: "image/png" }],
   },
   appleWebApp: {
     capable: true,
@@ -110,7 +110,7 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#0088CC" />
         <meta name="msapplication-tap-highlight" content="no" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <link rel="apple-touch-icon" href="/icons/icon-180x180.png" />
+        <link rel="apple-touch-icon" href="/icon-180x180.png" />
         <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js" async />
       </head>
       <body className={`font-sans ${geistSans.variable} ${geistMono.variable}`}>

@@ -52,28 +52,30 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-background neural-grid flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="login-page min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
         <div
           className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-          style={{ backgroundColor: "rgba(0, 71, 171, 0.2)" }}
+          style={{ backgroundColor: "rgba(0, 71, 171, 0.25)" }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-          style={{ backgroundColor: "rgba(0, 206, 209, 0.2)", animationDelay: "1s" }}
+          style={{ backgroundColor: "rgba(0, 206, 209, 0.18)", animationDelay: "1s" }}
         />
+        <div className="absolute inset-0 neural-grid opacity-40" />
 
-        <Card className="w-full max-w-md glass-card border-white/20 dark:border-gray-700/30 relative z-10">
+        <Card className="login-card w-full max-w-md border-white/10 backdrop-blur-md shadow-2xl shadow-black/40 relative z-10">
           <CardContent className="pt-6">
             <div className="text-center space-y-4">
               <div className="w-16 h-16 rounded-full gradient-kronova flex items-center justify-center mx-auto">
                 <CheckCircle className="h-8 w-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold">Check your email</h2>
-              <p className="text-muted-foreground">
-                We've sent you a confirmation link at <strong className="text-foreground">{email}</strong>
+              <h2 className="text-2xl font-bold text-white">Check your email</h2>
+              <p className="text-white/60">
+                {"We've sent you a confirmation link at "}
+                <strong className="text-white">{email}</strong>
               </p>
               <Link href="/auth/login">
-                <Button variant="outline" className="w-full glass-subtle hover:bg-primary/10 bg-transparent">
+                <Button variant="outline" className="w-full border-white/20 text-white/80 hover:bg-white/10 bg-transparent">
                   Back to Sign In
                 </Button>
               </Link>
@@ -85,47 +87,54 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background neural-grid flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="login-page min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       <div
         className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-        style={{ backgroundColor: "rgba(0, 71, 171, 0.2)" }}
+        style={{ backgroundColor: "rgba(0, 71, 171, 0.25)" }}
       />
       <div
         className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-        style={{ backgroundColor: "rgba(0, 206, 209, 0.2)", animationDelay: "1s" }}
+        style={{ backgroundColor: "rgba(0, 206, 209, 0.18)", animationDelay: "1s" }}
       />
+      <div className="absolute inset-0 neural-grid opacity-40" />
 
       <div className="w-full max-w-md space-y-8 relative z-10">
+        {/* Logo + tagline — identical to login page */}
         <div className="text-center space-y-4">
           <div className="flex justify-center items-center">
-            <img src="/kronova-logo-header.svg" alt="Kronova" className="h-14 w-auto" />
+            <img src="/kronova-logo-header.svg" alt="Kronova" className="h-10 w-auto" />
           </div>
-          <p className="text-muted-foreground">Intelligent Asset Systems</p>
-          <div className="flex justify-center space-x-6 text-sm text-muted-foreground">
-            <div className="flex items-center space-x-1.5 glass-subtle px-3 py-1.5 rounded-full">
-              <Shield className="h-4 w-4 text-primary" />
-              <span>Blockchain</span>
+          <p className="text-base font-semibold text-white/80 tracking-wide uppercase">
+            Intelligent Asset Systems
+          </p>
+          <div className="flex flex-wrap justify-center gap-2 text-xs max-w-sm mx-auto">
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <Shield className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">Secure</span>
             </div>
-            <div className="flex items-center space-x-1.5 glass-subtle px-3 py-1.5 rounded-full">
-              <BarChart3 className="h-4 w-4 text-primary" />
-              <span>Analytics</span>
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <BarChart3 className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">Analytics</span>
             </div>
-            <div className="flex items-center space-x-1.5 glass-subtle px-3 py-1.5 rounded-full">
-              <Brain className="h-4 w-4 text-primary" />
-              <span>AI-Powered</span>
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <Brain className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">AI-Powered</span>
             </div>
           </div>
         </div>
 
-        <Card className="glass-card border-white/20 dark:border-gray-700/30">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Create Account</CardTitle>
-            <CardDescription className="text-center">Get started with Kronova</CardDescription>
+        {/* Signup card — matches login card exactly */}
+        <Card className="login-card border-white/10 backdrop-blur-md shadow-2xl shadow-black/40">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-2xl text-center text-white font-bold">Create Account</CardTitle>
+            <CardDescription className="text-center text-white/60">
+              Get started with Kronova
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSignUp} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="fullName" className="text-white/80 font-medium">Full Name</Label>
                 <Input
                   id="fullName"
                   type="text"
@@ -133,11 +142,11 @@ export default function SignUpPage() {
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   required
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+                  className="bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-kronova-cyan/60 focus:ring-kronova-cyan/20 backdrop-blur-sm"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-white/80 font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -145,11 +154,11 @@ export default function SignUpPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+                  className="bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-kronova-cyan/60 focus:ring-kronova-cyan/20 backdrop-blur-sm"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-white/80 font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -158,19 +167,19 @@ export default function SignUpPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   minLength={6}
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+                  className="bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-kronova-cyan/60 focus:ring-kronova-cyan/20 backdrop-blur-sm"
                 />
               </div>
 
               {error && (
-                <Alert variant="destructive" className="glass-subtle border-destructive/50">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" className="bg-red-500/10 border-red-500/30">
+                  <AlertDescription className="text-red-300">{error}</AlertDescription>
                 </Alert>
               )}
 
               <Button
                 type="submit"
-                className="w-full gradient-kronova hover:opacity-90 transition-opacity text-white border-0"
+                className="w-full gradient-kronova hover:opacity-90 transition-opacity text-white border-0 font-semibold"
                 disabled={loading}
               >
                 {loading ? (
@@ -188,7 +197,7 @@ export default function SignUpPage() {
             </form>
 
             <div className="mt-4 text-center text-sm">
-              <span className="text-muted-foreground">Already have an account? </span>
+              <span className="text-white/50">Already have an account? </span>
               <Link href="/auth/login" className="text-gradient-kronova font-semibold hover:underline">
                 Sign in
               </Link>
@@ -196,9 +205,9 @@ export default function SignUpPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-xs text-white/40">
           <p>
-            © 2025 <span className="text-gradient-kronova font-semibold">Kronova</span>. Intelligent Asset Systems.
+            © 2026 <span className="text-gradient-kronova font-semibold">Kronova</span>. Intelligent Asset Systems.
           </p>
         </div>
       </div>

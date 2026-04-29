@@ -222,3 +222,32 @@
     box-shadow: 0 0 20px rgba(0, 136, 204, 0.4), 0 0 40px rgba(0, 71, 171, 0.2);
   }
 }
+
+/* Login page — deep navy background consistent across light and dark modes */
+.login-page {
+  background-color: #050d1a;
+  background-image:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(0, 71, 171, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(0, 206, 209, 0.12) 0%, transparent 55%);
+}
+
+/* Login card — dark glass surface that looks identical in both modes */
+.login-card {
+  background-color: rgba(10, 20, 40, 0.75);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Slightly lighter input surfaces inside the dark card */
+.login-card input {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+  color: white !important;
+}
+
+.login-card input::placeholder {
+  color: rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Override Tailwind's bg-white/8 which isn't a default step */
+.bg-white\/8 {
+  background-color: rgba(255, 255, 255, 0.08);
+}

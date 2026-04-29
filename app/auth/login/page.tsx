@@ -50,48 +50,59 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background neural-grid flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Ambient glow effects */}
+    <div className="login-page min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Ambient glow effects — same in both modes */}
       <div
         className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-        style={{ backgroundColor: "rgba(0, 71, 171, 0.2)" }}
+        style={{ backgroundColor: "rgba(0, 71, 171, 0.25)" }}
       />
       <div
         className="absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse-slow"
-        style={{ backgroundColor: "rgba(0, 206, 209, 0.2)", animationDelay: "1s" }}
+        style={{ backgroundColor: "rgba(0, 206, 209, 0.18)", animationDelay: "1s" }}
       />
 
+      {/* Neural grid overlay */}
+      <div className="absolute inset-0 neural-grid opacity-40" />
+
       <div className="w-full max-w-md space-y-8 relative z-10">
+        {/* Logo + tagline */}
         <div className="text-center space-y-4">
           <div className="flex justify-center items-center">
             <img src="/kronova-logo-header.svg" alt="Kronova" className="h-10 w-auto" />
           </div>
-          <p className="text-lg text-muted-foreground font-medium">Intelligent Asset Systems</p>
+          <p className="text-base font-semibold text-white/80 tracking-wide uppercase">
+            Intelligent Asset Systems
+          </p>
+
+          {/* Feature badges — consistent dark pill style in both modes */}
           <div className="flex flex-wrap justify-center gap-2 text-xs max-w-sm mx-auto">
-            <div className="flex items-center gap-1.5 bg-black/40 dark:bg-white/5 px-3 py-1 rounded-full border border-white/10 hover:border-primary/30 transition-all backdrop-blur-sm">
-              <Shield className="h-3.5 w-3.5 text-primary dark:text-kronova-cyan" />
-              <span className="font-medium text-foreground/90">Secure</span>
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <Shield className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">Secure</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-black/40 dark:bg-white/5 px-3 py-1 rounded-full border border-white/10 hover:border-primary/30 transition-all backdrop-blur-sm">
-              <BarChart3 className="h-3.5 w-3.5 text-primary dark:text-kronova-cyan" />
-              <span className="font-medium text-foreground/90">Analytics</span>
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <BarChart3 className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">Analytics</span>
             </div>
-            <div className="flex items-center gap-1.5 bg-black/40 dark:bg-white/5 px-3 py-1 rounded-full border border-white/10 hover:border-primary/30 transition-all backdrop-blur-sm">
-              <Brain className="h-3.5 w-3.5 text-primary dark:text-kronova-cyan" />
-              <span className="font-medium text-foreground/90">AI-Powered</span>
+            <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1 rounded-full border border-white/15 hover:border-kronova-cyan/50 transition-all backdrop-blur-sm">
+              <Brain className="h-3.5 w-3.5 text-kronova-cyan" />
+              <span className="font-medium text-white/90">AI-Powered</span>
             </div>
           </div>
         </div>
 
-        <Card className="bg-black/50 dark:bg-white/5 border-white/10 backdrop-blur-md shadow-2xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">Access your Kronova dashboard</CardDescription>
+        {/* Login card — dark glass in both modes */}
+        <Card className="login-card border-white/10 backdrop-blur-md shadow-2xl shadow-black/40">
+          <CardHeader className="space-y-1 pb-4">
+            <CardTitle className="text-2xl text-center text-white font-bold">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-white/60">
+              Access your Kronova dashboard
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleLogin} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-white/80 font-medium">Email</Label>
                 <Input
                   id="email"
                   type="email"
@@ -99,11 +110,11 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+                  className="bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-kronova-cyan/60 focus:ring-kronova-cyan/20 backdrop-blur-sm"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-white/80 font-medium">Password</Label>
                 <Input
                   id="password"
                   type="password"
@@ -111,19 +122,19 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="bg-input/50 backdrop-blur-sm border-border/50 focus:border-primary/50"
+                  className="bg-white/8 border-white/15 text-white placeholder:text-white/30 focus:border-kronova-cyan/60 focus:ring-kronova-cyan/20 backdrop-blur-sm"
                 />
               </div>
 
               {error && (
-                <Alert variant="destructive" className="glass-subtle border-destructive/50">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" className="bg-red-500/10 border-red-500/30">
+                  <AlertDescription className="text-red-300">{error}</AlertDescription>
                 </Alert>
               )}
 
               <Button
                 type="submit"
-                className="w-full gradient-kronova hover:opacity-90 transition-opacity text-white border-0"
+                className="w-full gradient-kronova hover:opacity-90 transition-opacity text-white border-0 font-semibold"
                 disabled={loading}
               >
                 {loading ? (
@@ -141,7 +152,7 @@ export default function LoginPage() {
             </form>
 
             <div className="mt-4 text-center text-sm">
-              <span className="text-muted-foreground">Don't have an account? </span>
+              <span className="text-white/50">{"Don't have an account? "}</span>
               <Link href="/auth/signup" className="text-gradient-kronova font-semibold hover:underline">
                 Sign up
               </Link>
@@ -149,7 +160,7 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-xs text-muted-foreground">
+        <div className="text-center text-xs text-white/40">
           <p>
             © 2026 <span className="text-gradient-kronova font-semibold">Kronova</span>. Intelligent Asset Systems.
           </p>

@@ -107,7 +107,7 @@ The generated `pkg/package.json` should be enhanced:
 
 ```json
 {
-  "name": "@kronova/rust-sdk",
+  "name": "@kronova-intelligent-systems/rust-sdk",
   "version": "0.1.0",
   "description": "Enterprise-grade Rust SDK for Kronova platform",
   "main": "kronova_rust_sdk.js",
@@ -119,7 +119,7 @@ The generated `pkg/package.json` should be enhanced:
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/kronova/kronova-rust-sdk"
+    "url": "https://github.com/Kronova-Intelligent-Systems/rust-sdk"
   },
   "keywords": [
     "kronova",
@@ -133,7 +133,7 @@ The generated `pkg/package.json` should be enhanced:
   "license": "MIT",
   "homepage": "https://kronova.io",
   "bugs": {
-    "url": "https://github.com/kronova/kronova-rust-sdk/issues"
+    "url": "https://github.com/Kronova-Intelligent-Systems/rust-sdk/issues"
   }
 }
 ```
@@ -205,7 +205,7 @@ Add to `pkg/package.json`:
 ```json
 {
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@kronova"
+    "registry": "https://npm.pkg.github.com/@kronova-intelligent-systems"
   }
 }
 ```
@@ -280,18 +280,18 @@ jobs:
 
 ```bash
 # Install via npm
-npm install @kronova/rust-sdk
+npm install @kronova-intelligent-systems/rust-sdk
 
 # Install via pnpm
-pnpm add @kronova/rust-sdk
+pnpm add @kronova-intelligent-systems/rust-sdk
 
 # Install via yarn
-yarn add @kronova/rust-sdk
+yarn add @kronova-intelligent-systems/rust-sdk
 ```
 
 ```typescript
 // Import in TypeScript/JavaScript
-import { KronovaClient } from '@kronova/rust-sdk'
+import { KronovaClient } from '@kronova-intelligent-systems/rust-sdk'
 
 const client = new KronovaClient(
   process.env.SUPABASE_URL,
@@ -326,7 +326,7 @@ cd ../../../test-sdk
 npm link @kronova/rust-sdk
 
 # Test import
-node -e "console.log(require('@kronova/rust-sdk'))"
+node -e "console.log(require('@kronova-intelligent-systems/rust-sdk'))"
 ```
 
 ### 3. Documentation
@@ -370,7 +370,7 @@ npm login
 npm org ls kronova
 
 # Verify package name isn't taken
-npm view @kronova/rust-sdk
+npm view @kronova-intelligent-systems/rust-sdk
 ```
 
 ### Package Size Too Large
@@ -398,6 +398,6 @@ echo "target/" >> .npmignore
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/kronova/kronova-rust-sdk/issues
+- GitHub Issues: https://github.com/Kronova-Intelligent-Systems/rust-sdk/issues
 - Email: dev@kronova.io
 - Docs: https://docs.kronova.io

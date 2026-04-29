@@ -55,9 +55,9 @@ lib/rspc-sdk/
 
 ```json
 {
-  "name": "@kronova/rspc-sdk",
+  "name": "@kronova-intelligent-systems/rspc-sdk",
   "version": "0.1.0",
-  "description": "Enterprise-grade TypeScript SDK for Kronova rspc protocol",
+  "description": "Enterprise-grade TypeScript SDK for the Kronova rspc protocol",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -95,11 +95,11 @@ lib/rspc-sdk/
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kronova/kronova-rspc-sdk"
+    "url": "https://github.com/Kronova-Intelligent-Systems/rspc-sdk"
   },
   "homepage": "https://kronova.io",
   "bugs": {
-    "url": "https://github.com/kronova/kronova-rspc-sdk/issues"
+    "url": "https://github.com/Kronova-Intelligent-Systems/rspc-sdk/issues"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0"
@@ -315,7 +315,7 @@ Update `package.json`:
 
 ```json
 {
-  "name": "@kronova/rspc-sdk",
+  "name": "@kronova-intelligent-systems/rspc-sdk",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   }
@@ -452,7 +452,7 @@ cd ~/test-project
 npm link @kronova/rspc-sdk
 
 # Test the SDK
-node -e "console.log(require('@kronova/rspc-sdk'))"
+node -e "console.log(require('@kronova-intelligent-systems/rspc-sdk'))"
 ```
 
 ### Using npm pack
@@ -462,10 +462,10 @@ cd lib/rspc-sdk
 pnpm run build
 npm pack
 
-# Creates: kronova-rspc-sdk-0.1.0.tgz
+# Creates: kronova-intelligent-systems-rspc-sdk-0.1.0.tgz
 
 # In test project
-npm install /path/to/kronova-rspc-sdk-0.1.0.tgz
+npm install /path/to/kronova-intelligent-systems-rspc-sdk-0.1.0.tgz
 ```
 
 ### Using Verdaccio (Local Registry)
@@ -484,34 +484,34 @@ npm set registry http://localhost:4873
 npm publish
 
 # Test installation
-npm install @kronova/rspc-sdk
+npm install @kronova-intelligent-systems/rspc-sdk
 ```
 
 ## Usage After Publishing
 
 ```bash
 # Install via npm
-npm install @kronova/rspc-sdk
+npm install @kronova-intelligent-systems/rspc-sdk
 
 # Install via pnpm
-pnpm add @kronova/rspc-sdk
+pnpm add @kronova-intelligent-systems/rspc-sdk
 
 # Install via yarn
-yarn add @kronova/rspc-sdk
+yarn add @kronova-intelligent-systems/rspc-sdk
 
 # Install specific version
-npm install @kronova/rspc-sdk@0.1.0
+npm install @kronova-intelligent-systems/rspc-sdk@0.1.0
 
 # Install beta tag
-npm install @kronova/rspc-sdk@beta
+npm install @kronova-intelligent-systems/rspc-sdk@beta
 ```
 
 ```typescript
 // ESM import
-import { KronovaSDK } from '@kronova/rspc-sdk'
+import { KronovaSDK } from '@kronova-intelligent-systems/rspc-sdk'
 
 // CommonJS require
-const { KronovaSDK } = require('@kronova/rspc-sdk')
+const { KronovaSDK } = require('@kronova-intelligent-systems/rspc-sdk')
 
 // Usage
 const sdk = new KronovaSDK()
@@ -600,7 +600,7 @@ npm audit fix
 - [ ] Create git tag
 - [ ] Push tag: `git push origin --tags`
 - [ ] Publish: `npm publish --access public`
-- [ ] Verify installation: `npm view @kronova/rspc-sdk`
+- [ ] Verify installation: `npm view @kronova-intelligent-systems/rspc-sdk`
 - [ ] Test in fresh project
 - [ ] Announce release (GitHub, docs, etc.)
 
@@ -676,7 +676,7 @@ echo "**/*.test.ts" >> .npmignore
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/kronova/kronova-rspc-sdk/issues
+- GitHub Issues: https://github.com/Kronova-Intelligent-Systems/rspc-sdk/issues
 - Email: dev@kronova.io
 - Documentation: https://docs.kronova.io
 - Discord: https://discord.gg/kronova

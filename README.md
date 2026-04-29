@@ -64,6 +64,11 @@ NEXT_PUBLIC_SITE_URL=
 
 ## SDK Documentation
 
+| Package | Registry |
+|---|---|
+| `@kronova-intelligent-systems/rspc-sdk` | [npmjs.com](https://www.npmjs.com/org/kronova-intelligent-systems) |
+| `@kronova-intelligent-systems/rust-sdk` | [npmjs.com](https://www.npmjs.com/org/kronova-intelligent-systems) |
+
 - [`lib/rspc-sdk/PUBLISHING.md`](lib/rspc-sdk/PUBLISHING.md) — Publishing the TypeScript rspc SDK to npm/pnpm
 - [`lib/rust-sdk/PUBLISHING.md`](lib/rust-sdk/PUBLISHING.md) — Publishing the Rust SDK via wasm-pack
 - [`docs/SDK-USAGE.md`](docs/SDK-USAGE.md) — Full SDK usage reference

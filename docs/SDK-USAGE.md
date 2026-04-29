@@ -18,7 +18,7 @@ The Rust SDK provides direct access to Supabase Edge Functions written in Rust. 
 **Example Usage:**
 
 ```rust
-use kronova_sdk::{KronovaClient, assets::CreateAssetRequest};
+use kronova_intelligent_systems_sdk::{KronovaClient, assets::CreateAssetRequest};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -54,10 +54,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 The TypeScript SDK wraps rspc calls with a clean, Promise-based API:
 
 ```typescript
-import { sdk } from '@/lib/rspc-sdk'
+import { sdk } from '@kronova-intelligent-systems/rspc-sdk'
 
 // Create an asset
-const asset = await sdk.createAsset({
+const asset = await sdk.createAsset({  
   asset_id: 'ASSET-001',
   name: 'Company Vehicle',
   asset_type: 'vehicle',
@@ -102,7 +102,7 @@ All accounts display:
 ### Usage Example
 
 ```typescript
-import { sdk } from '@/lib/rspc-sdk'
+import { sdk } from '@kronova-intelligent-systems/rspc-sdk'
 
 // Get all accounts for an institution
 const accounts = await sdk.getPlaidAccounts('plaid_item_id')
@@ -128,6 +128,8 @@ accounts.forEach(account => {
 The SDK enables importing financial data as trackable assets:
 
 ```typescript
+import { sdk } from '@kronova-intelligent-systems/rspc-sdk'
+
 // Import bank accounts as assets
 const assets = await Promise.all(
   accounts.map(account => sdk.createAsset({
@@ -153,6 +155,8 @@ const assets = await Promise.all(
 Both SDKs provide comprehensive error handling:
 
 ```typescript
+import { sdk } from '@kronova-intelligent-systems/rspc-sdk'
+
 try {
   const asset = await sdk.createAsset(data)
 } catch (error) {

@@ -9,7 +9,7 @@ interface WelcomeEmailProps {
 export const WelcomeEmail = ({
   userName = "there",
   organizationName,
-  dashboardLink = "https://app.resend-it.com/dashboard",
+  dashboardLink = "https://app.kronova.io/dashboard",
 }: WelcomeEmailProps) => {
   const logo = {
     width: "150",
@@ -74,7 +74,7 @@ export const WelcomeEmail = ({
           </Section>
 
           <Section style={footer}>
-            <Text style={footerText}>© 2025 Kronova. All rights reserved.</Text>
+            <Text style={footerText}>© 2026 Kronova. All rights reserved.</Text>
           </Section>
         </Container>
       </Body>

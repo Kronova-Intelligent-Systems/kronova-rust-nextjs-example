@@ -1,7 +1,6 @@
 import { Resend } from "resend"
 
-const apiKey = process.env.RESEND_API_KEY || process.env.RESENDIT_API_KEY
-const resend = apiKey ? new Resend(apiKey) : null
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 const getSiteUrl = () => {
   return process.env.NEXT_PUBLIC_SITE_URL || "https://kronova.io"
@@ -19,9 +18,7 @@ export interface SendEmailOptions {
  */
 export async function sendEmail({ to, subject, html, from }: SendEmailOptions) {
   if (!resend) {
-    console.warn(
-      "[v0] Resend not configured - skipping email send. Please set RESEND_API_KEY or RESENDIT_API_KEY environment variable.",
-    )
+    console.warn("[v0] Resend not configured — skipping email send. Please set RESEND_API_KEY environment variable.")
     return { success: false, error: "Resend API key not configured" }
   }
 
@@ -218,12 +215,12 @@ export async function sendWelcomeEmail({
             <tr>
               <td style="padding: 0 48px 48px 48px; border-top: 1px solid #e6ebf1; padding-top: 24px;">
                 <p style="color: #8898aa; font-size: 12px; line-height: 16px; margin: 0 0 8px 0;">
-                  © 2025 Resend-It. All rights reserved.
+                  © 2026 Kronova. All rights reserved.
                 </p>
                 <p style="color: #8898aa; font-size: 12px; line-height: 16px; margin: 0;">
-                  <a href="https://resend-it.com/privacy" style="color: #0070f3; text-decoration: underline;">Privacy Policy</a>
+                  <a href="https://kronova.io/privacy" style="color: #0070f3; text-decoration: underline;">Privacy Policy</a>
                   ·
-                  <a href="https://resend-it.com/terms" style="color: #0070f3; text-decoration: underline;">Terms of Service</a>
+                  <a href="https://kronova.io/terms" style="color: #0070f3; text-decoration: underline;">Terms of Service</a>
                 </p>
               </td>
             </tr>

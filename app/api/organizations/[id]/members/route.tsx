@@ -104,7 +104,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     }
 
     const inviterName = inviterProfile?.full_name || inviterProfile?.email || "A team member"
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.resend-it.com"
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.kronova.io"
 
     if (invitedUser) {
       // User exists, add them directly

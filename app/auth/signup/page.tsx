@@ -27,7 +27,7 @@ export default function SignUpPage() {
     setError(null)
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -41,6 +41,18 @@ export default function SignUpPage() {
       if (error) {
         setError(error.message)
       } else {
+        // Fire welcome email — non-blocking, signup succeeds regardless
+        if (data.user) {
+          fetch("/api/auth/signup", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: data.user.id,
+              email,
+              fullName,
+            }),
+          }).catch((err) => console.error("[v0] Welcome email request failed:", err))
+        }
         setSuccess(true)
       }
     } catch (err) {

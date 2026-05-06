@@ -12,7 +12,7 @@ const TeamInvitationEmail = ({
   organizationName = "Acme Corporation",
   inviterName = "John Doe",
   role = "member",
-  inviteLink = "https://app.resend-it.com/accept-invitation",
+  inviteLink = "https://app.kronova.io/accept-invitation",
   isNewUser = false,
 }: TeamInvitationEmailProps) => {
   return (
@@ -65,7 +65,7 @@ const TeamInvitationEmail = ({
           </Section>
 
           <Section style={footer}>
-            <Text style={footerText}>© 2025 Kronova. All rights reserved.</Text>
+            <Text style={footerText}>© 2026 Kronova. All rights reserved.</Text>
             <Text style={footerText}>
               <Link href="https://kronova.io/privacy" style={link}>
                 Privacy Policy

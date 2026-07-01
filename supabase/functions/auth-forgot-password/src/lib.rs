@@ -78,7 +78,7 @@ pub async fn handle_forgot_password(req: ForgotPasswordRequest) -> Result<Forgot
 
 fn get_reset_redirect_url() -> String {
     std::env::var("RESET_PASSWORD_REDIRECT_URL")
-        .unwrap_or_else(|_| "https://app.resend-it.com/auth/reset-password".to_string())
+        .unwrap_or_else(|_| "https://app.kronova.io/auth/reset-password".to_string())
 }
 
 async fn log_auth_event(

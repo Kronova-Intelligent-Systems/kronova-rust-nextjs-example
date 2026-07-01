@@ -207,7 +207,7 @@ async fn generate_qr_code(
     asset_id: &str,
     asset_code: &str,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let qr_data = format!("https://app.resend-it.com/assets/{}", asset_code);
+    let qr_data = format!("https://app.kronova.io/assets/{}", asset_code);
     
     // Update asset with QR code data
     let _ = client

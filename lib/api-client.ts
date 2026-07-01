@@ -1618,7 +1618,7 @@ export class ApiClient {
   private generateAPIKey(): string {
     // Generate a secure random API key (64 characters)
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
-    let apiKey = "rsk_" // Resend-It Secret Key prefix
+    let apiKey = "rsk_" // Kronova Secret Key prefix
     for (let i = 0; i < 60; i++) {
       apiKey += chars.charAt(Math.floor(Math.random() * chars.length))
     }

@@ -78,7 +78,7 @@ export function AIAgents() {
         setShowCreateForm(false)
         toast({
           title: "Agent created via API",
-          description: "Your AI agent has been created successfully using the Resend-It API",
+          description: "Your AI agent has been created successfully using the Kronova API",
         })
       } catch (error: any) {
         toast({
@@ -189,7 +189,7 @@ export function AIAgents() {
                 {useApiMode && (
                   <Badge variant="outline" className="w-fit">
                     <Webhook className="h-3 w-3 mr-1" />
-                    Using Resend-It REST API
+                    Using Kronova REST API
                   </Badge>
                 )}
               </CardHeader>

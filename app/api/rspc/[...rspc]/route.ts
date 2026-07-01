@@ -90,7 +90,7 @@ export async function GET(request: NextRequest) {
               id: "card-1",
               name: "John Doe",
               title: "CEO",
-              company: "Resend-It AI",
+              company: "Kronova Intelligent Systems",
               email: "john@resendit.ai",
               phone: "+1 (555) 123-4567",
               website: "https://resendit.ai",
@@ -153,11 +153,11 @@ export async function POST(request: NextRequest) {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser()
-    
+
     if (authError) {
       console.error("[v0] Auth error:", authError)
     }
-    
+
     const userId = user?.id
 
     switch (path) {

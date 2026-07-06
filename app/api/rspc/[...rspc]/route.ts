@@ -1779,7 +1779,7 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
       email_address: profile?.email,
       legal_name: profile?.full_name,
     },
-    client_name: "ResendIt Asset Intelligence",
+    client_name: "Kronova Asset Intelligence",
     products: products as Products[],
     country_codes: country_codes as CountryCode[],
     language: language,

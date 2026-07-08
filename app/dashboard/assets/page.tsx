@@ -1,14 +1,12 @@
 import { Suspense } from "react"
-import { createServerClient } from "@/lib/supabase/server"
-import { cookies } from "next/headers"
+import { createClient } from "@/lib/supabase/server"
 import { AssetsPageClient } from "./assets-client"
 import type { Database } from "@/lib/database.types"
 
 type Asset = Database["public"]["Tables"]["assets"]["Row"]
 
 async function getAssets(): Promise<Asset[]> {
-  const cookieStore = cookies()
-  const supabase = createServerClient(cookieStore)
+  const supabase = await createClient()
 
   try {
     const { data: assets, error } = await supabase.from("assets").select("*").order("created_at", { ascending: false })
@@ -31,8 +29,7 @@ async function getAssetStats(): Promise<{
   pending: number
   critical: number
 }> {
-  const cookieStore = cookies()
-  const supabase = createServerClient(cookieStore)
+  const supabase = await createClient()
 
   try {
     const { data: assets, error } = await supabase.from("assets").select("status, risk_score")

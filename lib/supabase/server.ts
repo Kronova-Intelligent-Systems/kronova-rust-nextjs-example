@@ -11,7 +11,7 @@ import { cookies } from "next/headers"
  * 
  * @see https://supabase.com/docs/guides/api/api-keys
  */
-export function createServerClient(cookieStore: ReturnType<typeof cookies>) {
+export function createServerClient(cookieStore: Awaited<ReturnType<typeof cookies>>) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   
   // Prefer new publishable key, fallback to legacy anon key for backward compatibility

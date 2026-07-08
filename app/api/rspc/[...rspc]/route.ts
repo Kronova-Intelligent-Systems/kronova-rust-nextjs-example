@@ -8,22 +8,28 @@ import type { SupabaseClient } from "@supabase/supabase-js"
  * Creates a Plaid API client per-request to ensure env vars are always fresh.
  * Module-level initialization causes stale credentials in serverless environments.
  */
+/**
+ * Resolves the correct Plaid secret for the configured environment.
+ * Plaid issues a separate secret per environment — prefer the
+ * environment-specific variable and fall back to PLAID_SECRET.
+ */
+function getPlaidSecret(): string | undefined {
+  const plaidEnv = process.env.PLAID_ENV || "sandbox"
+  if (plaidEnv === "sandbox") {
+    return process.env.PLAID_SANDBOX_SECRET ?? process.env.PLAID_SECRET
+  }
+  if (plaidEnv === "development") {
+    return process.env.PLAID_DEVELOPMENT_SECRET ?? process.env.PLAID_SECRET
+  }
+  return process.env.PLAID_SECRET
+}
+
 function createPlaidClient(): PlaidApi {
   const plaidEnv = process.env.PLAID_ENV || "sandbox"
+  const secret = getPlaidSecret()
 
-  // Plaid issues a separate secret per environment.
-  // Always prefer the environment-specific secret; PLAID_SECRET is production only.
-  let secret: string | undefined
-  if (plaidEnv === "sandbox") {
-    secret = process.env.PLAID_SANDBOX_SECRET
-    if (!secret) {
-      console.error("PLAID_SANDBOX_SECRET is not set — cannot create Plaid sandbox client")
-    }
-  } else if (plaidEnv === "development") {
-    secret = process.env.PLAID_DEVELOPMENT_SECRET ?? process.env.PLAID_SECRET
-  } else {
-    // production
-    secret = process.env.PLAID_SECRET
+  if (!secret) {
+    console.error(`Plaid secret is not configured for PLAID_ENV="${plaidEnv}"`)
   }
 
   const config = new Configuration({
@@ -1760,10 +1766,13 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  if (!process.env.PLAID_CLIENT_ID || !process.env.PLAID_SECRET) {
-    console.error("[v0] Plaid credentials not configured")
+  if (!process.env.PLAID_CLIENT_ID || !getPlaidSecret()) {
+    console.error("Plaid credentials not configured for env:", process.env.PLAID_ENV || "sandbox")
     return NextResponse.json(
-      { error: "Plaid integration not configured. Please add PLAID_CLIENT_ID and PLAID_SECRET environment variables." },
+      {
+        error:
+          "Plaid integration not configured. Please set PLAID_CLIENT_ID and the secret for your PLAID_ENV (PLAID_SANDBOX_SECRET for sandbox).",
+      },
       { status: 500 },
     )
   }
@@ -1788,7 +1797,7 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
   try {
     plaidResponse = await plaidClient.linkTokenCreate({
       client_id: process.env.PLAID_CLIENT_ID!,
-      secret: process.env.PLAID_SECRET!,
+      secret: getPlaidSecret()!,
       user: {
         client_user_id: userId,
         email_address: profile?.email ?? undefined,
@@ -1842,7 +1851,7 @@ async function handleExchangePublicToken(
   try {
     exchangeResponse = await exchangeClient.itemPublicTokenExchange({
       client_id: process.env.PLAID_CLIENT_ID!,
-      secret: process.env.PLAID_SECRET!,
+      secret: getPlaidSecret()!,
       public_token: publicToken,
     })
   } catch (plaidError: any) {
@@ -1970,14 +1979,12 @@ async function handleGetPlaidAccounts(supabase: any, body: any, userId: string) 
     decryptedToken += decipher.final("utf8")
 
     // Fetch accounts from Plaid
-    console.log("[v0] Fetching accounts from Plaid for item:", itemId)
-    const accountsResponse = await plaidClient.accountsBalanceGet({
+    const accountsClient = createPlaidClient()
+    const accountsResponse = await accountsClient.accountsBalanceGet({
       client_id: process.env.PLAID_CLIENT_ID!,
-      secret: process.env.PLAID_SECRET!,
+      secret: getPlaidSecret()!,
       access_token: decryptedToken,
     })
-
-    console.log("[v0] Plaid accounts fetched:", accountsResponse.data.accounts.length)
 
     const plaidConnectionRecord = await supabase
       .from("plaid_connections")
@@ -2064,7 +2071,8 @@ async function handleGetPlaidTransactions(supabase: any, body: any, userId: stri
     accessToken += decipher.final("utf8")
 
     // Fetch real transaction data from Plaid API
-    const response = await plaidClient.transactionsSync({
+    const transactionsClient = createPlaidClient()
+    const response = await transactionsClient.transactionsSync({
       access_token: accessToken,
       start_date: startDate || new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0], // Default to last month
       end_date: endDate || new Date().toISOString().split("T")[0],
@@ -2122,11 +2130,10 @@ async function handleGetPlaidBalance(supabase: any, body: any, userId: string) {
     accessToken += decipher.final("utf8")
 
     // Fetch real balance data from Plaid API
-    const response = await plaidClient.accountsBalanceGet({
+    const balanceClient = createPlaidClient()
+    const response = await balanceClient.accountsBalanceGet({
       access_token: accessToken,
     })
-
-    console.log("[v0] Plaid balance fetched successfully")
 
     return NextResponse.json({
       ...response.data,
@@ -2173,10 +2180,10 @@ async function handleDisconnectPlaidAccount(supabase: any, body: any, userId: st
       accessToken += decipher.final("utf8")
 
       try {
-        await plaidClient.itemRemove({ access_token: accessToken })
-        console.log("[v0] Plaid item removed successfully")
+        const removeClient = createPlaidClient()
+        await removeClient.itemRemove({ access_token: accessToken })
       } catch (plaidError) {
-        console.error("[v0] Error removing Plaid item:", plaidError)
+        console.error("Error removing Plaid item:", plaidError)
       }
     }
 

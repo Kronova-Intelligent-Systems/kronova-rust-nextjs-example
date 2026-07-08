@@ -4,17 +4,45 @@ import crypto from "crypto"
 import { Configuration, PlaidApi, PlaidEnvironments, type Products, type CountryCode } from "plaid"
 import type { SupabaseClient } from "@supabase/supabase-js"
 
-const plaidConfig = new Configuration({
-  basePath: PlaidEnvironments[process.env.PLAID_ENV || "sandbox"],
-  baseOptions: {
-    headers: {
-      "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
-      "PLAID-SECRET": process.env.PLAID_SECRET,
-    },
-  },
-})
+/**
+ * Creates a Plaid API client per-request to ensure env vars are always fresh.
+ * Module-level initialization causes stale credentials in serverless environments.
+ */
+/**
+ * Resolves the correct Plaid secret for the configured environment.
+ * Plaid issues a separate secret per environment — prefer the
+ * environment-specific variable and fall back to PLAID_SECRET.
+ */
+function getPlaidSecret(): string | undefined {
+  const plaidEnv = process.env.PLAID_ENV || "sandbox"
+  if (plaidEnv === "sandbox") {
+    return process.env.PLAID_SANDBOX_SECRET ?? process.env.PLAID_SECRET
+  }
+  if (plaidEnv === "development") {
+    return process.env.PLAID_DEVELOPMENT_SECRET ?? process.env.PLAID_SECRET
+  }
+  return process.env.PLAID_SECRET
+}
 
-const plaidClient = new PlaidApi(plaidConfig)
+function createPlaidClient(): PlaidApi {
+  const plaidEnv = process.env.PLAID_ENV || "sandbox"
+  const secret = getPlaidSecret()
+
+  if (!secret) {
+    console.error(`Plaid secret is not configured for PLAID_ENV="${plaidEnv}"`)
+  }
+
+  const config = new Configuration({
+    basePath: PlaidEnvironments[plaidEnv as keyof typeof PlaidEnvironments] ?? PlaidEnvironments.sandbox,
+    baseOptions: {
+      headers: {
+        "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
+        "PLAID-SECRET": secret,
+      },
+    },
+  })
+  return new PlaidApi(config)
+}
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
@@ -1738,79 +1766,78 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  if (!process.env.PLAID_CLIENT_ID || !process.env.PLAID_SECRET) {
-    console.error("[v0] Plaid credentials not configured")
+  if (!process.env.PLAID_CLIENT_ID || !getPlaidSecret()) {
+    console.error("Plaid credentials not configured for env:", process.env.PLAID_ENV || "sandbox")
     return NextResponse.json(
-      { error: "Plaid integration not configured. Please add PLAID_CLIENT_ID and PLAID_SECRET environment variables." },
+      {
+        error:
+          "Plaid integration not configured. Please set PLAID_CLIENT_ID and the secret for your PLAID_ENV (PLAID_SANDBOX_SECRET for sandbox).",
+      },
       { status: 500 },
     )
   }
 
   const { products = ["auth", "transactions"], country_codes = ["US"], language = "en" } = body
 
-  const redirectUri = process.env.NEXT_PUBLIC_APP_URL
-    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/assets`
-    : undefined
+  // Derive canonical app URL — prefer NEXT_PUBLIC_SITE_URL (stable domain
+  // registered in the Plaid dashboard), then NEXT_PUBLIC_APP_URL.
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://rwa.kronova.io"
 
-  if (!redirectUri) {
-    console.error("[v0] NEXT_PUBLIC_APP_URL is not set - Plaid redirect will fail")
-  } else {
-    console.log("[v0] Using Plaid redirect URI:", redirectUri)
-    console.log(
-      "[v0] IMPORTANT: This URI must be added to your Plaid dashboard at https://dashboard.plaid.com/team/api",
-    )
-  }
+  // redirect_uri is only required for OAuth institutions and MUST exactly match
+  // a URI registered in the Plaid dashboard (Team Settings > API). Only send it
+  // when PLAID_REDIRECT_URI is explicitly configured; otherwise omit it so the
+  // standard (non-OAuth) Link flow works in previews and sandbox testing.
+  const redirectUri = process.env.PLAID_REDIRECT_URI || undefined
+  const webhookUri = `${appUrl}/api/webhooks/plaid`
 
   const { data: profile } = await supabase.from("profiles").select("email, full_name").eq("id", userId).single()
 
-  console.log("[v0] Creating Plaid link token with config:", {
-    userId,
-    email: profile?.email,
-    env: process.env.PLAID_ENV || "sandbox",
-    hasClientId: !!process.env.PLAID_CLIENT_ID,
-    hasSecret: !!process.env.PLAID_SECRET,
-  })
+  // Create Plaid client per-request so env vars are always read fresh
+  const plaidClient = createPlaidClient()
 
-  const response = await plaidClient.linkTokenCreate({
-    client_id: process.env.PLAID_CLIENT_ID!,
-    secret: process.env.PLAID_SECRET!,
-    user: {
-      client_user_id: userId,
-      email_address: profile?.email,
-      legal_name: profile?.full_name,
-    },
-    client_name: "Kronova Asset Intelligence",
-    products: products as Products[],
-    country_codes: country_codes as CountryCode[],
-    language: language,
-    webhook: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/plaid` : undefined,
-    redirect_uri: redirectUri,
-  })
-
-  console.log("[v0] Plaid API full response:", JSON.stringify(response.data, null, 2))
-
-  if (!response.data.link_token) {
-    console.error("[v0] Plaid API returned no link_token:", response.data)
-    if (
-      (response.data as any).error_code === "INVALID_FIELD" &&
-      (response.data as any).error_message?.includes("OAuth redirect URI")
-    ) {
-      throw new Error(
-        `Plaid redirect URI not configured. Please add "${redirectUri}" to your Plaid dashboard at https://dashboard.plaid.com/team/api under "Allowed redirect URIs"`,
-      )
-    }
-    throw new Error("Plaid API did not return a link token")
+  let plaidResponse
+  try {
+    plaidResponse = await plaidClient.linkTokenCreate({
+      client_id: process.env.PLAID_CLIENT_ID!,
+      secret: getPlaidSecret()!,
+      user: {
+        client_user_id: userId,
+        email_address: profile?.email ?? undefined,
+        legal_name: profile?.full_name ?? undefined,
+      },
+      client_name: "Kronova Asset Intelligence",
+      products: products as Products[],
+      country_codes: country_codes as CountryCode[],
+      language: language,
+      webhook: webhookUri,
+      redirect_uri: redirectUri,
+    })
+  } catch (plaidError: any) {
+    // Plaid SDK throws axios errors — extract the real Plaid error body
+    const plaidErrorBody = plaidError?.response?.data
+    const errorCode = plaidErrorBody?.error_code ?? "UNKNOWN"
+    const errorMessage = plaidErrorBody?.error_message ?? plaidError?.message ?? "Unknown Plaid error"
+    const displayMessage = plaidErrorBody?.display_message ?? null
+    console.error(`Plaid linkTokenCreate failed [${errorCode}]: ${errorMessage}`)
+    return NextResponse.json(
+      {
+        error: displayMessage ?? errorMessage,
+        plaid_error_code: errorCode,
+        plaid_error_type: plaidErrorBody?.error_type ?? null,
+      },
+      { status: 400 },
+    )
   }
 
-  const responseData = {
-    link_token: response.data.link_token,
-    expiration: response.data.expiration,
-    request_id: response.data.request_id,
+  if (!plaidResponse.data.link_token) {
+    throw new Error("Plaid did not return a link token")
   }
 
-  console.log("[v0] Returning valid link token")
-
-  return NextResponse.json(responseData)
+  return NextResponse.json({
+    link_token: plaidResponse.data.link_token,
+    expiration: plaidResponse.data.expiration,
+    request_id: plaidResponse.data.request_id,
+  })
 }
 
 async function handleExchangePublicToken(
@@ -1820,26 +1847,28 @@ async function handleExchangePublicToken(
   institutionName: string,
   userId: string,
 ) {
-  console.log("[v0] Exchanging public token for:", JSON.stringify({ institutionId, institutionName, userId }))
+  const exchangeClient = createPlaidClient()
 
-  const response = await plaidClient.itemPublicTokenExchange({
-    client_id: process.env.PLAID_CLIENT_ID!,
-    secret: process.env.PLAID_SECRET!,
-    public_token: publicToken,
-  })
+  let exchangeResponse
+  try {
+    exchangeResponse = await exchangeClient.itemPublicTokenExchange({
+      client_id: process.env.PLAID_CLIENT_ID!,
+      secret: getPlaidSecret()!,
+      public_token: publicToken,
+    })
+  } catch (plaidError: any) {
+    const plaidErrorBody = plaidError?.response?.data
+    const errorCode = plaidErrorBody?.error_code ?? "UNKNOWN"
+    const errorMessage = plaidErrorBody?.error_message ?? plaidError?.message ?? "Unknown Plaid error"
+    console.error(`Plaid itemPublicTokenExchange failed [${errorCode}]: ${errorMessage}`)
+    throw new Error(errorMessage)
+  }
 
-  console.log("[v0] Full Plaid exchange response:", JSON.stringify(response, null, 2))
-  console.log("[v0] Response.data:", JSON.stringify(response.data, null, 2))
-
-  const accessToken = response.data.access_token
-  const itemId = response.data.item_id
-
-  console.log("[v0] Extracted access_token:", accessToken ? "[PRESENT]" : "[MISSING]")
-  console.log("[v0] Extracted item_id:", itemId ? "[PRESENT]" : "[MISSING]")
+  const accessToken = exchangeResponse.data.access_token
+  const itemId = exchangeResponse.data.item_id
 
   if (!accessToken || typeof accessToken !== "string") {
-    console.error("[v0] Invalid access token. Full response data:", response.data)
-    throw new Error(`Invalid access token received: ${typeof accessToken}`)
+    throw new Error("Invalid access token received from Plaid")
   }
 
   const rawKey = process.env.PLAID_ENCRYPTION_KEY || process.env.SUPABASE_JWT_SECRET!
@@ -1847,30 +1876,21 @@ async function handleExchangePublicToken(
     throw new Error("No encryption key available")
   }
 
-  // Create a proper 32-byte key by hashing the raw key
+  // Derive a consistent 32-byte key from the secret
   const encryptionKey = crypto.createHash("sha256").update(rawKey).digest()
   const iv = crypto.randomBytes(16)
-
-  console.log("[v0] Creating cipher with key length:", encryptionKey.length)
-  console.log("[v0] IV length:", iv.length)
-
   const cipher = crypto.createCipheriv("aes-256-cbc", encryptionKey, iv)
 
-  const tokenString = String(accessToken)
-  console.log("[v0] Encrypting token string of length:", tokenString.length)
-
-  let encryptedToken = cipher.update(tokenString, "utf8", "hex")
+  let encryptedToken = cipher.update(String(accessToken), "utf8", "hex")
   encryptedToken += cipher.final("hex")
   const encryptedData = iv.toString("hex") + ":" + encryptedToken
 
-  console.log("[v0] Token encrypted successfully, storing in database")
-
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("plaid_connections")
     .insert({
       user_id: userId,
       item_id: itemId,
-      access_token: encryptedData, // Stored encrypted
+      access_token: encryptedData,
       institution_id: institutionId,
       institution_name: institutionName,
       status: "active",
@@ -1881,16 +1901,14 @@ async function handleExchangePublicToken(
     .single()
 
   if (error) {
-    console.error("[v0] Error storing Plaid connection:", error)
+    console.error("Error storing Plaid connection:", error)
     return NextResponse.json({ error: "Failed to store connection" }, { status: 500 })
   }
-
-  console.log("[v0] Plaid connection stored successfully")
 
   return NextResponse.json({
     success: true,
     item_id: itemId,
-    request_id: response.data.request_id,
+    request_id: exchangeResponse.data.request_id,
   })
 }
 
@@ -1963,14 +1981,12 @@ async function handleGetPlaidAccounts(supabase: any, body: any, userId: string) 
     decryptedToken += decipher.final("utf8")
 
     // Fetch accounts from Plaid
-    console.log("[v0] Fetching accounts from Plaid for item:", itemId)
-    const accountsResponse = await plaidClient.accountsBalanceGet({
+    const accountsClient = createPlaidClient()
+    const accountsResponse = await accountsClient.accountsBalanceGet({
       client_id: process.env.PLAID_CLIENT_ID!,
-      secret: process.env.PLAID_SECRET!,
+      secret: getPlaidSecret()!,
       access_token: decryptedToken,
     })
-
-    console.log("[v0] Plaid accounts fetched:", accountsResponse.data.accounts.length)
 
     const plaidConnectionRecord = await supabase
       .from("plaid_connections")
@@ -2057,7 +2073,8 @@ async function handleGetPlaidTransactions(supabase: any, body: any, userId: stri
     accessToken += decipher.final("utf8")
 
     // Fetch real transaction data from Plaid API
-    const response = await plaidClient.transactionsSync({
+    const transactionsClient = createPlaidClient()
+    const response = await transactionsClient.transactionsSync({
       access_token: accessToken,
       start_date: startDate || new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split("T")[0], // Default to last month
       end_date: endDate || new Date().toISOString().split("T")[0],
@@ -2115,11 +2132,10 @@ async function handleGetPlaidBalance(supabase: any, body: any, userId: string) {
     accessToken += decipher.final("utf8")
 
     // Fetch real balance data from Plaid API
-    const response = await plaidClient.accountsBalanceGet({
+    const balanceClient = createPlaidClient()
+    const response = await balanceClient.accountsBalanceGet({
       access_token: accessToken,
     })
-
-    console.log("[v0] Plaid balance fetched successfully")
 
     return NextResponse.json({
       ...response.data,
@@ -2166,10 +2182,10 @@ async function handleDisconnectPlaidAccount(supabase: any, body: any, userId: st
       accessToken += decipher.final("utf8")
 
       try {
-        await plaidClient.itemRemove({ access_token: accessToken })
-        console.log("[v0] Plaid item removed successfully")
+        const removeClient = createPlaidClient()
+        await removeClient.itemRemove({ access_token: accessToken })
       } catch (plaidError) {
-        console.error("[v0] Error removing Plaid item:", plaidError)
+        console.error("Error removing Plaid item:", plaidError)
       }
     }
 

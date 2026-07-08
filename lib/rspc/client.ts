@@ -12,8 +12,12 @@ export const rspc = {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        const message = errorData.error || errorData.message || `HTTP ${response.status}`
+        const err = new Error(message) as any
+        err.plaid_error_code = errorData.plaid_error_code ?? null
+        err.plaid_error_type = errorData.plaid_error_type ?? null
+        throw err
       }
 
       const data = await response.json()
@@ -37,8 +41,12 @@ export const rspc = {
       })
 
       if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || `HTTP ${response.status}`)
+        const errorData = await response.json().catch(() => ({}))
+        const message = errorData.error || errorData.message || `HTTP ${response.status}`
+        const err = new Error(message) as any
+        err.plaid_error_code = errorData.plaid_error_code ?? null
+        err.plaid_error_type = errorData.plaid_error_type ?? null
+        throw err
       }
 
       const data = await response.json()

@@ -1768,41 +1768,49 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
   // Create Plaid client per-request so env vars are always read fresh
   const plaidClient = createPlaidClient()
 
-  const response = await plaidClient.linkTokenCreate({
-    client_id: process.env.PLAID_CLIENT_ID!,
-    secret: process.env.PLAID_SECRET!,
-    user: {
-      client_user_id: userId,
-      email_address: profile?.email,
-      legal_name: profile?.full_name,
-    },
-    client_name: "Kronova Asset Intelligence",
-    products: products as Products[],
-    country_codes: country_codes as CountryCode[],
-    language: language,
-    webhook: webhookUri,
-    redirect_uri: redirectUri,
+  let plaidResponse
+  try {
+    plaidResponse = await plaidClient.linkTokenCreate({
+      client_id: process.env.PLAID_CLIENT_ID!,
+      secret: process.env.PLAID_SECRET!,
+      user: {
+        client_user_id: userId,
+        email_address: profile?.email ?? undefined,
+        legal_name: profile?.full_name ?? undefined,
+      },
+      client_name: "Kronova Asset Intelligence",
+      products: products as Products[],
+      country_codes: country_codes as CountryCode[],
+      language: language,
+      webhook: webhookUri,
+      redirect_uri: redirectUri,
+    })
+  } catch (plaidError: any) {
+    // Plaid SDK throws axios errors — extract the real Plaid error body
+    const plaidErrorBody = plaidError?.response?.data
+    const errorCode = plaidErrorBody?.error_code ?? "UNKNOWN"
+    const errorMessage = plaidErrorBody?.error_message ?? plaidError?.message ?? "Unknown Plaid error"
+    const displayMessage = plaidErrorBody?.display_message ?? null
+    console.error(`Plaid linkTokenCreate failed [${errorCode}]: ${errorMessage}`)
+    return NextResponse.json(
+      {
+        error: displayMessage ?? errorMessage,
+        plaid_error_code: errorCode,
+        plaid_error_type: plaidErrorBody?.error_type ?? null,
+      },
+      { status: 400 },
+    )
+  }
+
+  if (!plaidResponse.data.link_token) {
+    throw new Error("Plaid did not return a link token")
+  }
+
+  return NextResponse.json({
+    link_token: plaidResponse.data.link_token,
+    expiration: plaidResponse.data.expiration,
+    request_id: plaidResponse.data.request_id,
   })
-
-  if (!response.data.link_token) {
-    const errData = response.data as any
-    if (errData.error_code === "INVALID_FIELD" && errData.error_message?.includes("OAuth redirect URI")) {
-      throw new Error(
-        `Plaid redirect URI not registered. Add "${redirectUri}" in the Plaid dashboard under Team Settings > API > Allowed redirect URIs.`,
-      )
-    }
-    throw new Error(`Plaid did not return a link token: ${errData.error_message ?? "unknown error"}`)
-  }
-
-  const responseData = {
-    link_token: response.data.link_token,
-    expiration: response.data.expiration,
-    request_id: response.data.request_id,
-  }
-
-  console.log("[v0] Returning valid link token")
-
-  return NextResponse.json(responseData)
 }
 
 async function handleExchangePublicToken(
@@ -1812,26 +1820,28 @@ async function handleExchangePublicToken(
   institutionName: string,
   userId: string,
 ) {
-  console.log("[v0] Exchanging public token for:", JSON.stringify({ institutionId, institutionName, userId }))
+  const exchangeClient = createPlaidClient()
 
-  const response = await plaidClient.itemPublicTokenExchange({
-    client_id: process.env.PLAID_CLIENT_ID!,
-    secret: process.env.PLAID_SECRET!,
-    public_token: publicToken,
-  })
+  let exchangeResponse
+  try {
+    exchangeResponse = await exchangeClient.itemPublicTokenExchange({
+      client_id: process.env.PLAID_CLIENT_ID!,
+      secret: process.env.PLAID_SECRET!,
+      public_token: publicToken,
+    })
+  } catch (plaidError: any) {
+    const plaidErrorBody = plaidError?.response?.data
+    const errorCode = plaidErrorBody?.error_code ?? "UNKNOWN"
+    const errorMessage = plaidErrorBody?.error_message ?? plaidError?.message ?? "Unknown Plaid error"
+    console.error(`Plaid itemPublicTokenExchange failed [${errorCode}]: ${errorMessage}`)
+    throw new Error(errorMessage)
+  }
 
-  console.log("[v0] Full Plaid exchange response:", JSON.stringify(response, null, 2))
-  console.log("[v0] Response.data:", JSON.stringify(response.data, null, 2))
-
-  const accessToken = response.data.access_token
-  const itemId = response.data.item_id
-
-  console.log("[v0] Extracted access_token:", accessToken ? "[PRESENT]" : "[MISSING]")
-  console.log("[v0] Extracted item_id:", itemId ? "[PRESENT]" : "[MISSING]")
+  const accessToken = exchangeResponse.data.access_token
+  const itemId = exchangeResponse.data.item_id
 
   if (!accessToken || typeof accessToken !== "string") {
-    console.error("[v0] Invalid access token. Full response data:", response.data)
-    throw new Error(`Invalid access token received: ${typeof accessToken}`)
+    throw new Error("Invalid access token received from Plaid")
   }
 
   const rawKey = process.env.PLAID_ENCRYPTION_KEY || process.env.SUPABASE_JWT_SECRET!
@@ -1839,30 +1849,21 @@ async function handleExchangePublicToken(
     throw new Error("No encryption key available")
   }
 
-  // Create a proper 32-byte key by hashing the raw key
+  // Derive a consistent 32-byte key from the secret
   const encryptionKey = crypto.createHash("sha256").update(rawKey).digest()
   const iv = crypto.randomBytes(16)
-
-  console.log("[v0] Creating cipher with key length:", encryptionKey.length)
-  console.log("[v0] IV length:", iv.length)
-
   const cipher = crypto.createCipheriv("aes-256-cbc", encryptionKey, iv)
 
-  const tokenString = String(accessToken)
-  console.log("[v0] Encrypting token string of length:", tokenString.length)
-
-  let encryptedToken = cipher.update(tokenString, "utf8", "hex")
+  let encryptedToken = cipher.update(String(accessToken), "utf8", "hex")
   encryptedToken += cipher.final("hex")
   const encryptedData = iv.toString("hex") + ":" + encryptedToken
 
-  console.log("[v0] Token encrypted successfully, storing in database")
-
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("plaid_connections")
     .insert({
       user_id: userId,
       item_id: itemId,
-      access_token: encryptedData, // Stored encrypted
+      access_token: encryptedData,
       institution_id: institutionId,
       institution_name: institutionName,
       status: "active",
@@ -1873,16 +1874,14 @@ async function handleExchangePublicToken(
     .single()
 
   if (error) {
-    console.error("[v0] Error storing Plaid connection:", error)
+    console.error("Error storing Plaid connection:", error)
     return NextResponse.json({ error: "Failed to store connection" }, { status: 500 })
   }
-
-  console.log("[v0] Plaid connection stored successfully")
 
   return NextResponse.json({
     success: true,
     item_id: itemId,
-    request_id: response.data.request_id,
+    request_id: exchangeResponse.data.request_id,
   })
 }
 

@@ -1779,13 +1779,15 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
 
   const { products = ["auth", "transactions"], country_codes = ["US"], language = "en" } = body
 
-  // Derive canonical app URL — prefer NEXT_PUBLIC_APP_URL, then NEXT_PUBLIC_SITE_URL
-  const appUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    "https://app.kronova.io"
+  // Derive canonical app URL — prefer NEXT_PUBLIC_SITE_URL (stable domain
+  // registered in the Plaid dashboard), then NEXT_PUBLIC_APP_URL.
+  const appUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "https://rwa.kronova.io"
 
-  const redirectUri = `${appUrl}/dashboard/assets`
+  // redirect_uri is only required for OAuth institutions and MUST exactly match
+  // a URI registered in the Plaid dashboard (Team Settings > API). Only send it
+  // when PLAID_REDIRECT_URI is explicitly configured; otherwise omit it so the
+  // standard (non-OAuth) Link flow works in previews and sandbox testing.
+  const redirectUri = process.env.PLAID_REDIRECT_URI || undefined
   const webhookUri = `${appUrl}/api/webhooks/plaid`
 
   const { data: profile } = await supabase.from("profiles").select("email, full_name").eq("id", userId).single()

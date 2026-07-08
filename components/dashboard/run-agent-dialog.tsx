@@ -360,7 +360,7 @@ export function RunAgentDialog({ open, onOpenChange, agent }: RunAgentDialogProp
                           REST API Mode
                         </Label>
                         <p className="text-xs text-muted-foreground">
-                          Use Resend-It REST API for programmatic execution
+                          Use Kronova REST API for programmatic execution
                         </p>
                       </div>
                       <Switch id="api-mode" checked={useAPIMode} onCheckedChange={setUseAPIMode} />

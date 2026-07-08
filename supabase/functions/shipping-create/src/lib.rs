@@ -327,7 +327,7 @@ async fn setup_carrier_integration(
         "carrier": carrier,
         "tracking_number": tracking_number,
         "integration_type": "webhook",
-        "webhook_url": format!("https://api.resend-it.com/webhooks/shipping/{}", shipping_id),
+        "webhook_url": format!("https://api.kronova.io/webhooks/shipping/{}", shipping_id),
         "polling_interval": 3600, // 1 hour
         "is_active": true,
         "created_at": chrono::Utc::now().to_rfc3339(),

@@ -6,17 +6,13 @@ import { retryGenerateText } from "@/lib/ai-retry"
 
 export async function POST() {
   try {
-    console.log("[v0] Executive summary: Starting request")
-
     const supabase = await createClient()
-    console.log("[v0] Executive summary: Supabase client created")
 
     const [analyticsResult, assetsResult, executionsResult] = await Promise.all([
       supabase.from("asset_analytics").select("*").maybeSingle(),
       supabase.from("assets").select("*"),
       supabase.from("asset_workflow_executions").select("*").order("created_at", { ascending: false }).limit(20),
     ])
-    console.log("[v0] Executive summary: Data fetched from Supabase")
 
     const summaryContext = {
       totalAssets: assetsResult.data?.length || 0,
@@ -26,13 +22,9 @@ export async function POST() {
         ? (executionsResult.data.filter((e) => e.status === "completed").length / executionsResult.data.length) * 100
         : 0,
     }
-    console.log("[v0] Executive summary: Context prepared:", summaryContext)
 
-    console.log("[v0] Executive summary: Getting AI model")
     const model = await getAIModel("gpt-4o-mini")
-    console.log("[v0] Executive summary: AI model obtained:", typeof model)
 
-    console.log("[v0] Executive summary: Calling generateText")
     const { text } = await retryGenerateText(
       async () =>
         await generateText({
@@ -50,15 +42,10 @@ Provide a concise executive summary covering key performance indicators, notable
         initialDelayMs: 1000,
       },
     )
-    console.log("[v0] Executive summary: Text generated successfully")
 
     return NextResponse.json({ data: { summary: text }, success: true })
   } catch (error: any) {
-    console.error("[v0] AI executive summary error - Full details:")
-    console.error("[v0] Error message:", error.message)
-    console.error("[v0] Error name:", error.name)
-    console.error("[v0] Error stack:", error.stack)
-    console.error("[v0] Error object:", JSON.stringify(error, Object.getOwnPropertyNames(error)))
+    console.error("AI executive summary error:", error.message)
 
     return NextResponse.json(
       {

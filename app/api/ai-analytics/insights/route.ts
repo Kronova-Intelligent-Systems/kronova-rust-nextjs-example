@@ -23,7 +23,6 @@ const assetInsightSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("[v0] AI insights: Starting request")
     const supabase = await createClient()
     const { asset_ids, limit } = await request.json()
 
@@ -44,7 +43,7 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error
 
-    console.log("[v0] AI insights: Found", assets?.length || 0, "assets")
+
 
     if (!assets || assets.length === 0) {
       return NextResponse.json({
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
       lastMaintenance: asset.last_maintenance_date,
     }))
 
-    console.log("[v0] AI insights: Generating insights for assets")
+
 
     try {
       const { object } = await retryGenerateObject(
@@ -102,10 +101,9 @@ Also provide:
         },
       )
 
-      console.log("[v0] AI insights: Successfully generated", object.insights?.length || 0, "insights")
       return NextResponse.json({ data: object, success: true })
     } catch (aiError: any) {
-      console.error("[v0] AI insights generation error:", aiError.message)
+      console.error("AI insights generation error:", aiError.message)
 
       return NextResponse.json({
         data: {
@@ -140,7 +138,7 @@ Also provide:
       })
     }
   } catch (error: any) {
-    console.error("[v0] AI insights error:", error.message)
+    console.error("AI insights error:", error.message)
     return NextResponse.json({ error: error.message, success: false }, { status: 500 })
   }
 }

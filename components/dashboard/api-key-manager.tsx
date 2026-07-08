@@ -195,7 +195,7 @@ export function APIKeyManager() {
               <Key className="h-5 w-5" />
               API Key Management
             </CardTitle>
-            <CardDescription className="mt-1">Manage API keys for Resend-It platform integrations</CardDescription>
+            <CardDescription className="mt-1">Manage API keys for Kronova platform integrations</CardDescription>
           </div>
           <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
             <DialogTrigger asChild>

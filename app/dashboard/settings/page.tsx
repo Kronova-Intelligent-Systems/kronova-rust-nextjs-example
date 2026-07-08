@@ -269,7 +269,7 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
-                        <p className="font-medium">Resend-It API</p>
+                        <p className="font-medium">Kronova API</p>
                         <p className="text-sm text-muted-foreground">
                           Base URL:{" "}
                           {process.env.NEXT_PUBLIC_SUPABASE_URL || "https://qcbllcvbwfykbaxzcrwe.supabase.co/rest/v1"}

@@ -11,13 +11,20 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 function createPlaidClient(): PlaidApi {
   const plaidEnv = process.env.PLAID_ENV || "sandbox"
 
-  // Plaid issues a separate secret per environment — pick the right one
-  const secret =
-    plaidEnv === "sandbox"
-      ? (process.env.PLAID_SANDBOX_SECRET ?? process.env.PLAID_SECRET)
-      : plaidEnv === "development"
-        ? (process.env.PLAID_DEVELOPMENT_SECRET ?? process.env.PLAID_SECRET)
-        : process.env.PLAID_SECRET
+  // Plaid issues a separate secret per environment.
+  // Always prefer the environment-specific secret; PLAID_SECRET is production only.
+  let secret: string | undefined
+  if (plaidEnv === "sandbox") {
+    secret = process.env.PLAID_SANDBOX_SECRET
+    if (!secret) {
+      console.error("PLAID_SANDBOX_SECRET is not set — cannot create Plaid sandbox client")
+    }
+  } else if (plaidEnv === "development") {
+    secret = process.env.PLAID_DEVELOPMENT_SECRET ?? process.env.PLAID_SECRET
+  } else {
+    // production
+    secret = process.env.PLAID_SECRET
+  }
 
   const config = new Configuration({
     basePath: PlaidEnvironments[plaidEnv as keyof typeof PlaidEnvironments] ?? PlaidEnvironments.sandbox,

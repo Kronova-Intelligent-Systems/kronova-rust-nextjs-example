@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
   BarChart3,
   Settings,
@@ -151,7 +151,8 @@ export function DashboardSidebar() {
             <Menu className="h-4 w-4" />
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="p-0 w-64 glass">
+        <SheetContent side="left" className="p-0 w-64 glass" aria-describedby={undefined}>
+          <SheetTitle className="sr-only">Navigation menu</SheetTitle>
           <SidebarContent />
         </SheetContent>
       </Sheet>

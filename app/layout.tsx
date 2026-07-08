@@ -100,7 +100,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning className="bg-background">
       <head>
         <meta name="theme-color" content="#0088CC" />
         <meta name="apple-mobile-web-app-capable" content="yes" />

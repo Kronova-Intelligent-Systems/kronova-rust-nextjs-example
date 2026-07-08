@@ -4,17 +4,23 @@ import crypto from "crypto"
 import { Configuration, PlaidApi, PlaidEnvironments, type Products, type CountryCode } from "plaid"
 import type { SupabaseClient } from "@supabase/supabase-js"
 
-const plaidConfig = new Configuration({
-  basePath: PlaidEnvironments[process.env.PLAID_ENV || "sandbox"],
-  baseOptions: {
-    headers: {
-      "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
-      "PLAID-SECRET": process.env.PLAID_SECRET,
+/**
+ * Creates a Plaid API client per-request to ensure env vars are always fresh.
+ * Module-level initialization causes stale credentials in serverless environments.
+ */
+function createPlaidClient(): PlaidApi {
+  const plaidEnv = process.env.PLAID_ENV || "sandbox"
+  const config = new Configuration({
+    basePath: PlaidEnvironments[plaidEnv as keyof typeof PlaidEnvironments] ?? PlaidEnvironments.sandbox,
+    baseOptions: {
+      headers: {
+        "PLAID-CLIENT-ID": process.env.PLAID_CLIENT_ID,
+        "PLAID-SECRET": process.env.PLAID_SECRET,
+      },
     },
-  },
-})
-
-const plaidClient = new PlaidApi(plaidConfig)
+  })
+  return new PlaidApi(config)
+}
 
 export async function GET(request: NextRequest) {
   const url = new URL(request.url)
@@ -1748,28 +1754,19 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
 
   const { products = ["auth", "transactions"], country_codes = ["US"], language = "en" } = body
 
-  const redirectUri = process.env.NEXT_PUBLIC_APP_URL
-    ? `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/assets`
-    : undefined
+  // Derive canonical app URL — prefer NEXT_PUBLIC_APP_URL, then NEXT_PUBLIC_SITE_URL
+  const appUrl =
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "https://app.kronova.io"
 
-  if (!redirectUri) {
-    console.error("[v0] NEXT_PUBLIC_APP_URL is not set - Plaid redirect will fail")
-  } else {
-    console.log("[v0] Using Plaid redirect URI:", redirectUri)
-    console.log(
-      "[v0] IMPORTANT: This URI must be added to your Plaid dashboard at https://dashboard.plaid.com/team/api",
-    )
-  }
+  const redirectUri = `${appUrl}/dashboard/assets`
+  const webhookUri = `${appUrl}/api/webhooks/plaid`
 
   const { data: profile } = await supabase.from("profiles").select("email, full_name").eq("id", userId).single()
 
-  console.log("[v0] Creating Plaid link token with config:", {
-    userId,
-    email: profile?.email,
-    env: process.env.PLAID_ENV || "sandbox",
-    hasClientId: !!process.env.PLAID_CLIENT_ID,
-    hasSecret: !!process.env.PLAID_SECRET,
-  })
+  // Create Plaid client per-request so env vars are always read fresh
+  const plaidClient = createPlaidClient()
 
   const response = await plaidClient.linkTokenCreate({
     client_id: process.env.PLAID_CLIENT_ID!,
@@ -1783,23 +1780,18 @@ async function handleCreatePlaidLinkToken(supabase: any, body: any, userId: stri
     products: products as Products[],
     country_codes: country_codes as CountryCode[],
     language: language,
-    webhook: process.env.NEXT_PUBLIC_APP_URL ? `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/plaid` : undefined,
+    webhook: webhookUri,
     redirect_uri: redirectUri,
   })
 
-  console.log("[v0] Plaid API full response:", JSON.stringify(response.data, null, 2))
-
   if (!response.data.link_token) {
-    console.error("[v0] Plaid API returned no link_token:", response.data)
-    if (
-      (response.data as any).error_code === "INVALID_FIELD" &&
-      (response.data as any).error_message?.includes("OAuth redirect URI")
-    ) {
+    const errData = response.data as any
+    if (errData.error_code === "INVALID_FIELD" && errData.error_message?.includes("OAuth redirect URI")) {
       throw new Error(
-        `Plaid redirect URI not configured. Please add "${redirectUri}" to your Plaid dashboard at https://dashboard.plaid.com/team/api under "Allowed redirect URIs"`,
+        `Plaid redirect URI not registered. Add "${redirectUri}" in the Plaid dashboard under Team Settings > API > Allowed redirect URIs.`,
       )
     }
-    throw new Error("Plaid API did not return a link token")
+    throw new Error(`Plaid did not return a link token: ${errData.error_message ?? "unknown error"}`)
   }
 
   const responseData = {

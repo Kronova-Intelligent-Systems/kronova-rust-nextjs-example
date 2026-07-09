@@ -26,10 +26,12 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { asset_ids, limit } = await request.json()
 
+    // Only run analytics on assets that have a monetary value set
     let query = supabase
       .from("assets")
       .select("*, asset_intelligence_insights(*), asset_lifecycle_events(*)")
-      .order("created_at", { ascending: false })
+      .gt("current_value", 0)
+      .order("current_value", { ascending: false })
 
     if (asset_ids && asset_ids.length > 0) {
       query = query.in("id", asset_ids)

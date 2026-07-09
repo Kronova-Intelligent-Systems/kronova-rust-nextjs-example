@@ -1,13 +1,12 @@
 "use server"
 
+import { openai } from "@ai-sdk/openai"
+
 /**
- * Get the configured AI model for analytics
- * Uses Vercel AI Gateway with the model string format
- *
- * To bypass rate limits, add credits to your Vercel account at:
- * https://vercel.com/[team]/~/ai?modal=top-up
+ * Returns a typed AI SDK v4 model object for use with generateText / generateObject.
+ * AI SDK v4 requires a provider model instance — plain strings ("openai/gpt-4o-mini")
+ * are a v5/AI Gateway pattern and cause AI_UnsupportedModelVersionError at runtime.
  */
 export async function getAIModel(modelName = "gpt-4o-mini") {
-  // This works reliably with Vercel's infrastructure
-  return `openai/${modelName}`
+  return openai(modelName)
 }

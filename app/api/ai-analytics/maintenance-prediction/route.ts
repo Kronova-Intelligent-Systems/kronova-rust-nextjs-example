@@ -29,7 +29,8 @@ export async function POST(request: NextRequest) {
     const { data: assets } = await supabase
       .from("assets")
       .select("*, asset_lifecycle_events(*)")
-      .order("created_at", { ascending: false })
+      .gt("current_value", 0)
+      .order("current_value", { ascending: false })
 
     const maintenanceContext = {
       assets: assets?.map((asset) => ({

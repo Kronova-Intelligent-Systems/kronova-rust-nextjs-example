@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { asset_ids } = await request.json()
 
-    let query = supabase.from("assets").select("*")
+    // Only assess risk on assets with monetary values — unvalued assets skew scoring
+    let query = supabase.from("assets").select("*").gt("current_value", 0)
 
     if (asset_ids && asset_ids.length > 0) {
       query = query.in("id", asset_ids)

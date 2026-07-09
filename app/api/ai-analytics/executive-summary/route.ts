@@ -10,7 +10,7 @@ export async function POST() {
 
     const [analyticsResult, assetsResult, executionsResult] = await Promise.all([
       supabase.from("asset_analytics").select("*").maybeSingle(),
-      supabase.from("assets").select("*"),
+      supabase.from("assets").select("*").gt("current_value", 0),
       supabase.from("asset_workflow_executions").select("*").order("created_at", { ascending: false }).limit(20),
     ])
 

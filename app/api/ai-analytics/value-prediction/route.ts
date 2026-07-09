@@ -26,7 +26,8 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
     const { asset_id, timeframes } = await request.json()
 
-    let query = supabase.from("assets").select("*")
+    // Predictions are only meaningful for assets with an established monetary value
+    let query = supabase.from("assets").select("*").gt("current_value", 0)
 
     if (asset_id) {
       query = query.eq("id", asset_id)

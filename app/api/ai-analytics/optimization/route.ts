@@ -26,7 +26,11 @@ export async function POST() {
   try {
     const supabase = await createClient()
 
-    const { data: assets } = await supabase.from("assets").select("*").order("current_value", { ascending: false })
+    const { data: assets } = await supabase
+      .from("assets")
+      .select("*")
+      .gt("current_value", 0)
+      .order("current_value", { ascending: false })
 
     const optimizationContext = {
       totalAssets: assets?.length || 0,

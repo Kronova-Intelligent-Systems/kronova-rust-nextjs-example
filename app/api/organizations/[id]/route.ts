@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { data: organization, error } = await supabase.from("organizations").select("*").eq("id", params.id).single()
+    const { data: organization, error } = await supabase.from("organizations").select("*").eq("id", id).single()
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })
@@ -27,8 +28,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
   }
 }
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -44,7 +46,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { data: membership } = await supabase
       .from("organization_members")
       .select("role")
-      .eq("organization_id", params.id)
+      .eq("organization_id", id)
       .eq("user_id", user.id)
       .single()
 
@@ -65,7 +67,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
         website_url,
         updated_at: new Date().toISOString(),
       })
-      .eq("id", params.id)
+      .eq("id", id)
       .select()
       .single()
 
@@ -80,8 +82,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
 
     const {
@@ -97,7 +100,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { data: membership } = await supabase
       .from("organization_members")
       .select("role")
-      .eq("organization_id", params.id)
+      .eq("organization_id", id)
       .eq("user_id", user.id)
       .single()
 
@@ -105,7 +108,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       return NextResponse.json({ error: "Only owners can delete organizations" }, { status: 403 })
     }
 
-    const { error } = await supabase.from("organizations").delete().eq("id", params.id)
+    const { error } = await supabase.from("organizations").delete().eq("id", id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

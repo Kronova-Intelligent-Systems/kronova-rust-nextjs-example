@@ -2,9 +2,9 @@ import { type NextRequest, NextResponse } from "next/server"
 import { createServiceRoleClient } from "@/lib/supabase/server"
 import { WebhookDeliveryService } from "@/lib/webhook-delivery"
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const agentId = params.id
+    const { id: agentId } = await params
     const { prompt, assetIds, dataStreamIds, webhookUrl, api_key } = await request.json()
 
     const supabase = createServiceRoleClient()

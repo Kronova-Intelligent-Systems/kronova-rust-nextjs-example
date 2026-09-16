@@ -1,8 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 
-export async function PATCH(request: NextRequest, { params }: { params: { id: string; memberId: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string; memberId: string }> }) {
   try {
+    const { id, memberId } = await params
     const supabase = await createClient()
 
     const {
@@ -18,7 +19,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { data: membership } = await supabase
       .from("organization_members")
       .select("role")
-      .eq("organization_id", params.id)
+      .eq("organization_id", id)
       .eq("user_id", user.id)
       .single()
 
@@ -36,8 +37,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const { data: updatedMember, error } = await supabase
       .from("organization_members")
       .update({ role })
-      .eq("id", params.memberId)
-      .eq("organization_id", params.id)
+      .eq("id", memberId)
+      .eq("organization_id", id)
       .select()
       .single()
 
@@ -52,8 +53,9 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { id: string; memberId: string } }) {
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string; memberId: string }> }) {
   try {
+    const { id, memberId } = await params
     const supabase = await createClient()
 
     const {
@@ -69,7 +71,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { data: membership } = await supabase
       .from("organization_members")
       .select("role")
-      .eq("organization_id", params.id)
+      .eq("organization_id", id)
       .eq("user_id", user.id)
       .single()
 
@@ -80,8 +82,8 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { error } = await supabase
       .from("organization_members")
       .delete()
-      .eq("id", params.memberId)
-      .eq("organization_id", params.id)
+      .eq("id", memberId)
+      .eq("organization_id", id)
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 })

@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
     const requestId = crypto.randomUUID()
 
     // Use internal API key for internal calls if available, otherwise use the provided API key
-    const internalApiKey = process.env.RESENDIT_API_KEY || clientApiKey
+    const internalApiKey = process.env.KRONOVA_API_KEY || clientApiKey
 
     const response = await fetch(`${baseUrl}/api/agents/${agentId}/execute`, {
       method: "POST",

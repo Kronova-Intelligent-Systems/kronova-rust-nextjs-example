@@ -33,7 +33,7 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
         return NextResponse.json({ error: "API key required" }, { status: 401 })
       }
 
-      const expectedApiKey = process.env.RESENDIT_API_KEY
+      const expectedApiKey = process.env.KRONOVA_API_KEY
       console.log("[v0] Expected API key (first 8 chars):", expectedApiKey?.substring(0, 8) || "NOT_SET")
 
       if (!expectedApiKey || providedApiKey !== expectedApiKey) {

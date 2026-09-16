@@ -6,6 +6,9 @@ import { RSPCQueryProvider } from "@/lib/rspc/provider"
 import { ThemeProvider } from "@/components/theme-provider"
 import { Suspense } from "react"
 import "./globals.css"
+import { validateServerEnvironment } from "@/lib/env-validator"
+
+validateServerEnvironment()
 
 const geistSans = Geist({
   subsets: ["latin"],

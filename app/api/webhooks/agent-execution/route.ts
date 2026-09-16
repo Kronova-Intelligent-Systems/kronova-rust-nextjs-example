@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
 
     // Verify webhook signature if secret is configured
     const signature = request.headers.get("X-Webhook-Signature")
-    const webhookSecret = process.env.RESENDIT_WEBHOOK_SECRET
+    const webhookSecret = process.env.KRONOVA_WEBHOOK_SECRET
 
     if (webhookSecret && signature) {
       const hmac = crypto.createHmac("sha256", webhookSecret)
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     } else if (webhookSecret) {
       console.warn("[v0] Webhook secret configured but no signature provided in request")
     } else {
-      console.warn("[v0] RESENDIT_WEBHOOK_SECRET not configured - skipping signature verification")
+      console.warn("KRONOVA_WEBHOOK_SECRET not configured - skipping signature verification")
     }
 
     // Process the webhook based on event type

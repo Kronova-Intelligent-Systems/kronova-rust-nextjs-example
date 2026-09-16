@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin
     const requestId = crypto.randomUUID()
 
-    const internalApiKey = process.env.RESENDIT_API_KEY || clientApiKey
+    const internalApiKey = process.env.KRONOVA_API_KEY || clientApiKey
 
     const response = await fetch(`${baseUrl}/api/workflows/${workflowId}/execute`, {
       method: "POST",

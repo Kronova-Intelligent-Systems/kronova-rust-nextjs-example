@@ -40,25 +40,23 @@ Kronova is in the process of releasing the majority of the platform API **for fr
 
 ```bash
 pnpm install
+cp .env.example .env.local
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) to view the app.
+Open [http://localhost:3000](http://localhost:3000) to view the app. Required Supabase variables must be configured before authentication and database features can work. The app reports optional integration readiness at `/api/system/integrations` and disables those features when credentials are absent.
 
 ### Environment Variables
 
-```env
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
-SUPABASE_SECRET_KEY=
-OPENAI_API_KEY=
-PLAID_CLIENT_ID=
-PLAID_SECRET=
-PLAID_ENV=sandbox
-NEXT_PUBLIC_SITE_URL=
-```
+Use [`.env.example`](.env.example) as the public configuration reference. Never commit `.env.local`, service-role keys, provider secrets, or API keys. `NEXT_PUBLIC_*` values are exposed to browsers and must contain only public configuration.
 
-> See `docs/SUPABASE_API_KEY_MIGRATION.md` for the updated Supabase key format.
+### Template Setup
+
+- [Template setup guide](docs/TEMPLATE_SETUP.md) — Supabase, auth callbacks, optional integrations, and deployment checklist
+- [Supabase key migration](docs/SUPABASE_API_KEY_MIGRATION.md) — current public key naming
+- Optional integrations include AI analytics, Plaid banking, Resend email, Stripe billing, and blockchain imports.
+
+Before publishing a deployment, rotate any credential that was ever committed or exposed and configure separate Preview and Production variables.
 
 ---
 

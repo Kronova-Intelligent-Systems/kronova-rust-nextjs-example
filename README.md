@@ -88,4 +88,10 @@ This repository is linked to a [v0](https://v0.app) project. Start new chats to 
 
 ## License
 
-Copyright &copy; 2026 [Kronova Intelligent Systems](https://kronova.io). All rights reserved.
+This project is licensed under the **Apache License 2.0**. See the [LICENSE](./LICENSE) file for the full text.
+
+Apache 2.0 includes an explicit patent rights grant, meaning that contributors who submit code to this repository grant you a royalty-free license to any patents they hold that are necessarily infringed by their contribution.
+
+## Trademark Notice
+
+The Apache 2.0 license governs the source code in this repository. It does not grant permission to use the **Kronova** or **AetherNet** trade names, trademarks, or service marks in any way that implies endorsement or affiliation beyond describing the origin of the software. Forks and derivative works must remove all Kronova and AetherNet branding.
